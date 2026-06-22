@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Special Surprise for Rudra! 🎁</title>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Quicksand:wght@700;900&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; cursor: default; user-select: none; }
+        body, html { height: 100%; width: 100%; overflow: hidden; background: linear-gradient(-45deg, #ff9a9e, #fecfef, #a1c4fd, #e0c3fc); background-size: 300% 300%; animation: softGradient 12s ease infinite; font-family: 'Quicksand', sans-serif; }
+        
+        @keyframes softGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        #bg-canvas, #flower-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; transform: translateZ(0); will-change: transform; pointer-events: none; }
+        #bg-canvas { z-index: 2; } 
+        #flower-canvas { z-index: 5; }
+
+        .screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: space-between; pointer-events: none; transition: opacity 0.8s ease; opacity: 0; padding: 60px 20px; }
+        .screen.active { opacity: 1; pointer-events: auto; }
+
+        /* Direct alignment overrides for screens that don't need top/bottom split layouts */
+        #page-1, #page-3 { justify-content: center; }
+
+        /* --- Page 1 Style Elements --- */
+        .gift-container { text-align: center; cursor: pointer; pointer-events: auto; background: rgba(255, 255, 255, 0.25); padding: 40px; border-radius: 40px; backdrop-filter: blur(10px); box-shadow: 0 15px 35px rgba(0,0,0,0.05); transition: 0.4s; }
+        .gift-container:hover { transform: scale(1.05); background: rgba(255, 255, 255, 0.4); }
+        .gift-icon { font-size: 6rem; display: inline-block; animation: bounceGift 2s infinite ease-in-out; }
+        .gift-hint { font-size: 1.5rem; color: #fff; font-weight: 900; margin-top: 15px; text-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+
+        @keyframes bounceGift {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-15px) scale(1.05); }
+        }
+
+        /* --- Page 2 Style Elements --- */
+        .birthday-header { font-family: 'Caveat', cursive; font-size: 4.5rem; color: #fff; text-shadow: 0 4px 15px rgba(255, 107, 129, 0.4); text-align: center; margin-top: 20px; z-index: 15; pointer-events: none; animation: float 3s ease-in-out infinite; }
+        
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .reveal-btn { font-size: 1.2rem; color: #ff6b81; font-weight: 900; cursor: pointer; background: #fff; padding: 15px 40px; border-radius: 50px; border: none; box-shadow: 0 10px 25px rgba(0,0,0,0.1); pointer-events: auto; transition: 0.3s; z-index: 15; margin-bottom: 20px; }
+        .reveal-btn:hover { background: #ff6b81; color: #fff; transform: scale(1.1) translateY(-3px); box-shadow: 0 15px 30px rgba(255, 107, 129, 0.4); }
+
+        /* --- Page 3 Style Elements --- */
+        .message-box { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px); border-radius: 35px; padding: 50px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.1); max-width: 90%; width: 500px; z-index: 15; }
+        .message-title { font-family: 'Caveat', cursive; font-size: 3.5rem; color: #ff6b81; margin-bottom: 20px; font-weight: 700;}
+        .message-body { color: #555; font-size: 1.15rem; line-height: 1.7; margin-bottom: 30px; font-weight: 700; }
+        
+        .back-btn { background: transparent; border: 2px solid #ff6b81; color: #ff6b81; padding: 12px 30px; border-radius: 50px; font-weight: 700; cursor: pointer; transition: 0.3s; }
+        .back-btn:hover { background: #ff6b81; color: #fff; }
+    </style>
+</head>
+<body>
+
+    <canvas id="bg-canvas"></canvas>
+    <canvas id="flower-canvas"></canvas>
+
+    <div id="page-1" class="screen active">
+        <div class="gift-container" onclick="goToPage(2)">
+            <div class="gift-icon">🎁</div>
+            <div class="gift-hint">Hey Rudra, you have a delivery! Tap to unpack ✨</div>
+        </div>
+    </div>
+
+    <div id="page-2" class="screen">
+        <h1 class="birthday-header">Happy Birthday, Rudra! 🎂🌸</h1>
+        <div style="flex-grow: 1; pointer-events: none;"></div>
+        <button class="reveal-btn" onclick="goToPage(3)">Read My Message ✨</button>
+    </div>
+
+    <div id="page-3" class="screen">
+        <div class="message-box">
+            <h2 class="message-title">To My Bestie,</h2>
+            <p class="message-body">
+                Wishing you a magical day filled with love, laughter, and everything your heart desires. Thank you for being such an incredible person and a stellar friend. Here's to making many more memories together! Cheers to your brilliant year ahead. 🥂✨
+            </p>
+            <button class="back-btn" onclick="goToPage(2)">Back</button>
+        </div>
+    </div>
+
+    <script>
+        let currentPage = 1;
+        function goToPage(pageNum) {
+            // Remove active tags from all pages
+            document.getElementById('page-1').classList.remove('active');
+            document.getElementById('page-2').classList.remove('active');
+            document.getElementById('page-3').classList.remove('active');
+
+            // Apply active visibility to current step
+            document.getElementById('page-' + pageNum).classList.add('active');
+            currentPage = pageNum;
+
+            // Trigger confetti bursts upon stepping into the core birthday views!
+            if (pageNum === 2 || pageNum === 3) {
+                for(let i = 0; i < 3; i++) {
+                    setTimeout(() => createConfettiBomb(Math.random() * canvasBg.width, Math.random() * canvasBg.height), i * 200);
+                }
+            }
+        }
+
+        /* --- Celebration / Confetti Bomb Engine --- */
+        const canvasBg = document.getElementById('bg-canvas');
+        const ctxBg = canvasBg.getContext('2d');
+        let confettiParticles = [];
+        const colors = ['#FFC107', '#FF5722', '#E91E63', '#9C27B0', '#3F51B5', '#00BCD4', '#4CAF50', '#8BC34A'];
+
+        class Confetti {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.size = Math.random() * 8 + 4;
+                let angle = Math.random() * Math.PI * 2;
+                let speed = Math.random() * 8 + 4;
+                this.vx = Math.cos(angle) * speed;
+                this.vy = Math.sin(angle) * speed - 2; 
+                this.color = colors[Math.floor(Math.random() * colors.length)];
+                this.alpha = 1;
+                this.gravity = 0.15;
+                this.rotation = Math.random() * Math.PI;
+                this.rotationSpeed = (Math.random() - 0.5) * 0.2;
+            }
+            update() {
+                this.vy += this.gravity;
+                this.x += this.vx;
+                this.y += this.vy;
+                this.alpha -= 0.015;
+                this.rotation += this.rotationSpeed;
+            }
+            draw() {
+                ctxBg.save();
+                ctxBg.globalAlpha = this.alpha;
+                ctxBg.translate(this.x, this.y);
+                ctxBg.rotate(this.rotation);
+                ctxBg.fillStyle = this.color;
+                ctxBg.fillRect(-this.size/2, -this.size/2, this.size, this.size);
+                ctxBg.restore();
+            }
+        }
+
+        function createConfettiBomb(x, y) {
+            for (let i = 0; i < 40; i++) {
+                confettiParticles.push(new Confetti(x, y));
+            }
+        }
+
+        setInterval(() => {
+            // Only drop continuous passive confetti background if the user has unlocked the intro landing 
+            if(currentPage > 1 && Math.random() > 0.3) {
+                createConfettiBomb(Math.random() * canvasBg.width, canvasBg.height * 0.7);
+            }
+        }, 1500);
+
+        /* --- Magnetic Physics Engine (Flowers) --- */
+        let mouse = { x: -1000, y: -1000 };
+        
+        // Track input points only if tracking is relevant
+        const updateMousePosition = (x, y) => {
+            if (currentPage === 2) {
+                mouse.x = x;
+                mouse.y = y;
+            } else {
+                // Keep cursor calculation away from elements on separate menus
+                mouse.x = -1000;
+                mouse.y = -1000;
+            }
+        };
+
+        window.addEventListener('mousemove', e => updateMousePosition(e.clientX, e.clientY));
+        window.addEventListener('touchmove', e => updateMousePosition(e.touches[0].clientX, e.touches[0].clientY));
+
+        const canvasFlower = document.getElementById('flower-canvas');
+        const ctxFlower = canvasFlower.getContext('2d', { alpha: true });
+        let particles = [];
+        
+        const flowers = ['🌸', '🌺', '🌻', '🌼', '🌷', '🌹'];
+        const emojiCache = flowers.map(f => {
+            let c = document.createElement('canvas'); c.width = 40; c.height = 40;
+            let ctx = c.getContext('2d'); ctx.font = '28px Arial'; ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle'; ctx.fillText(f, 20, 20); return c;
+        });
+
+        class Flower {
+            constructor(tx, ty) {
+                this.baseX = tx; this.baseY = ty;
+                this.x = tx + (Math.random()-0.5)*600; this.y = ty + (Math.random()-0.5)*600;
+                this.vx = 0; this.vy = 0;
+                this.sprite = emojiCache[Math.floor(Math.random()*emojiCache.length)];
+            }
+            update() {
+                if(currentPage === 2) {
+                    let dx = mouse.x - this.x, dy = mouse.y - this.y;
+                    let dist = Math.sqrt(dx*dx + dy*dy);
+                    if(dist < 150) {
+                        let force = (150 - dist) / 150;
+                        this.vx -= (dx/dist) * force * 8;
+                        this.vy -= (dy/dist) * force * 8;
+                    }
+                }
+                this.vx += (this.baseX - this.x) * 0.04;
+                this.vy += (this.baseY - this.y) * 0.04;
+                this.vx *= 0.82; this.vy *= 0.82;
+                this.x += this.vx; this.y += this.vy;
+            }
+            draw() { 
+                // Only render the name string if the landing presentation has broken open
+                if(currentPage > 1) {
+                    ctxFlower.drawImage(this.sprite, this.x-20, this.y-20); 
+                }
+            }
+        }
+
+        function init() {
+            canvasBg.width = canvasFlower.width = window.innerWidth; 
+            canvasBg.height = canvasFlower.height = window.innerHeight;
+            particles = [];
+            
+            let off = document.createElement('canvas').getContext('2d');
+            off.canvas.width = canvasFlower.width; off.canvas.height = canvasFlower.height;
+            
+            let fontSize = Math.min(200, canvasFlower.width / 4); 
+            off.font = `900 ${fontSize}px 'Quicksand', sans-serif`; 
+            off.textAlign = 'center';
+            off.textBaseline = 'middle';
+            
+            off.fillStyle = 'black'; 
+            off.fillText('RUDRA', canvasFlower.width / 2, canvasFlower.height / 2);
+            
+            let data = off.getImageData(0, 0, canvasFlower.width, canvasFlower.height).data;
+            let step = canvasFlower.width < 600 ? 5 : 7; 
+            
+            for (let y = 0; y < canvasFlower.height; y += step) {
+                for (let x = 0; x < canvasFlower.width; x += step) {
+                    let index = (x + y * canvasFlower.width) * 4;
+                    if (data[index + 3] > 128) {
+                        particles.push(new Flower(x, y));
+                    }
+                }
+            }
+        }
+
+        function loop() {
+            ctxBg.clearRect(0, 0, canvasBg.width, canvasBg.height);
+            ctxFlower.clearRect(0, 0, canvasFlower.width, canvasFlower.height);
+            
+            for (let i = confettiParticles.length - 1; i >= 0; i--) {
+                confettiParticles[i].update();
+                confettiParticles[i].draw();
+                if (confettiParticles[i].alpha <= 0) {
+                    confettiParticles.splice(i, 1);
+                }
+            }
+
+            particles.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(loop);
+        }
+
+        window.addEventListener('resize', () => { init(); });
+
+        init(); 
+        loop();
+    </script>
+</body>
+</html>
